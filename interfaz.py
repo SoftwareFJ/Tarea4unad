@@ -1,6 +1,5 @@
 """
 Interfaz gráfica del sistema (Tkinter)
-
 FUNCIONALIDADES:
 ✔ Registrar clientes
 ✔ Crear reservas
@@ -11,27 +10,56 @@ FUNCIONALIDADES:
 ✔ Limpieza automática de campos
 """
 
+# -----------------------------
+# IMPORTACIONES
+# -----------------------------
+# Tkinter sirve para crear la interfaz gráfica (ventanas, botones, etc.)
+
 import tkinter as tk
+
+# messagebox permite mostrar mensajes (éxito, error)
+# ttk permite usar componentes más avanzados como tablas (Treeview) y combos
 from tkinter import messagebox, ttk
 
+# Importamos nuestras clases del sistema (modelo)
 from modelos.cliente import Cliente
 from modelos.reserva import Reserva
 from modelos.servicios import ReservaSala, AlquilerEquipo, AsesoriaEspecializada
 
+# Librería para manejar errores y guardarlos en un archivo
 import logging
+
+# -----------------------------
+# TIPADO (SOLO PARA VS CODE)
+# -----------------------------
+# Esto NO afecta el programa, solo evita que VS Code muestre errores falsos
+from typing import Any
+
+# Variables de interfaz inicializadas en None (vacías)
+# Luego se asignan dentro de la función iniciar_app()
+entry_id: Any = None
+entry_nombre: Any = None
+entry_correo: Any = None
+combo_clientes: Any = None
+combo_servicios: Any = None
+entry_horas: Any = None
+tabla: Any = None
+
 
 # -----------------------------
 # CONFIGURACIÓN LOGS
 # -----------------------------
 logging.basicConfig(
-    filename="logs.txt",
-    level=logging.ERROR,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    filename="logs.txt", # archivo donde se guardan errores
+    level=logging.ERROR,# nivel de error
+    format="%(asctime)s - %(levelname)s - %(message)s" # formato del mensaje
 )
 
 # -----------------------------
 # DATOS EN MEMORIA
 # -----------------------------
+# Listas donde se almacenan los clientes y reservas
+# (no se usa base de datos en este proyecto)
 clientes = []
 reservas = []
 
@@ -44,6 +72,8 @@ tabla = None
 # -----------------------------
 # SERVICIOS DISPONIBLES
 # -----------------------------
+# Diccionario con los tipos de servicios que ofrece el sistema
+# Cada servicio tiene su lógica de cálculo
 servicios_disponibles = {
     "Reserva Sala": ReservaSala("Sala", 50000),
     "Alquiler Equipo": AlquilerEquipo("Laptop", 30000),
