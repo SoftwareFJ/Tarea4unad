@@ -1,0 +1,2 @@
+2026-04-22 21:18:39,721 - ERROR - Correo inválido
+2026-04-22 21:20:25,483 - ERROR - El nombre no puede estar vacío
