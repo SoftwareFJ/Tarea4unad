@@ -23,4 +23,4 @@ class Cliente(Entidad):
         self.__correo = correo
 
     def mostrar_info(self):
-        return f"{self.__nombre} - {self.__correo}"
+         return f"[{self._id}] {self.__nombre} - {self.__correo}" # se agrega ID para que en la visual se pueda ver

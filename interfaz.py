@@ -169,10 +169,11 @@ def actualizar_tabla():
         color = "green" if r.estado == "Confirmada" else "red"
 
         tabla.insert("", "end", values=(
-            r.cliente.mostrar_info(),
+            r.cliente._id,  # 👈 NUEVO
+            r.cliente._Cliente__nombre,  # 👈 nombre sin ID duplicado
             r.servicio.nombre,
             r.horas,
-            r.fecha,  # 👈 NUEVO CAMPO
+            r.fecha,
             r.estado,
             f"${r.procesar():,.0f}"
         ), tags=(color,))
@@ -231,13 +232,13 @@ def iniciar_app():
     # TABLA
     tabla = ttk.Treeview(
         ventana,
-        columns=("Cliente", "Servicio", "Horas", "Fecha", "Estado", "Costo"),
+        columns=("ID", "Cliente", "Servicio", "Horas", "Fecha", "Estado", "Costo"), # se añade ID cliente visual
         show="headings"
     )
 
-    for col in ("Cliente", "Servicio", "Horas", "Fecha", "Estado", "Costo"):
+    for col in ("ID", "Cliente", "Servicio", "Horas", "Fecha", "Estado", "Costo"):
         tabla.heading(col, text=col)
-        tabla.column(col, width=120)
+        tabla.column(col, width=100)
 
     tabla.tag_configure("green", foreground="green")
     tabla.tag_configure("red", foreground="red")
