@@ -5,7 +5,7 @@ FUNCIONALIDADES:
 ✔ Registrar clientes
 ✔ Crear reservas con fecha
 ✔ Confirmar / cancelar reservas
-✔ Mostrar datos en tabla
+✔ Mostrar datos en tabla (incluye ID separado)
 ✔ Colores por estado
 ✔ Validaciones
 """
@@ -42,13 +42,13 @@ logging.basicConfig(
 )
 
 # -----------------------------
-# DATOS
+# DATOS EN MEMORIA
 # -----------------------------
 clientes = []
 reservas = []
 
 # -----------------------------
-# SERVICIOS
+# SERVICIOS DISPONIBLES
 # -----------------------------
 servicios_disponibles = {
     "Reserva Sala": ReservaSala("Sala", 50000),
@@ -64,7 +64,6 @@ def limpiar_campos():
     entry_nombre.delete(0, tk.END)
     entry_correo.delete(0, tk.END)
 
-
 # -----------------------------
 # REGISTRAR CLIENTE
 # -----------------------------
@@ -79,6 +78,7 @@ def registrar_cliente():
 
         clientes.append(cliente)
 
+        # Actualiza ComboBox
         combo_clientes['values'] = [
             c.mostrar_info() for c in clientes
         ]
@@ -90,7 +90,6 @@ def registrar_cliente():
     except Exception as e:
         logging.error(str(e))
         messagebox.showerror("Error", str(e))
-
 
 # -----------------------------
 # CREAR RESERVA
@@ -125,7 +124,6 @@ def crear_reserva():
         logging.error(str(e))
         messagebox.showerror("Error", str(e))
 
-
 # -----------------------------
 # CONFIRMAR RESERVA
 # -----------------------------
@@ -140,7 +138,6 @@ def confirmar_reserva():
     reservas[index].confirmar()
 
     actualizar_tabla()
-
 
 # -----------------------------
 # CANCELAR RESERVA
@@ -157,27 +154,34 @@ def cancelar_reserva():
 
     actualizar_tabla()
 
-
 # -----------------------------
 # ACTUALIZAR TABLA
 # -----------------------------
 def actualizar_tabla():
+    # Limpiar tabla
     for fila in tabla.get_children():
         tabla.delete(fila)
 
+    # Insertar datos
     for r in reservas:
-        color = "green" if r.estado == "Confirmada" else "red"
+
+        # Color según estado
+        if r.estado == "Confirmada":
+            tag = "confirmada"
+        elif r.estado == "Cancelada":
+            tag = "cancelada"
+        else:
+            tag = "pendiente"
 
         tabla.insert("", "end", values=(
-            r.cliente._id,  # 👈 NUEVO
-            r.cliente._Cliente__nombre,  # 👈 nombre sin ID duplicado
+            r.cliente._id,
+            r.cliente.get_nombre(),
             r.servicio.nombre,
             r.horas,
             r.fecha,
             r.estado,
             f"${r.procesar():,.0f}"
-        ), tags=(color,))
-
+        ), tags=(tag,))
 
 # -----------------------------
 # INTERFAZ PRINCIPAL
@@ -191,7 +195,7 @@ def iniciar_app():
     ventana.title("Software FJ")
     ventana.geometry("750x550")
 
-    # CLIENTES
+    # -------- CLIENTES --------
     tk.Label(ventana, text="ID").pack()
     entry_id = tk.Entry(ventana)
     entry_id.pack()
@@ -206,20 +210,22 @@ def iniciar_app():
 
     tk.Button(ventana, text="Registrar Cliente", command=registrar_cliente).pack(pady=5)
 
-    # RESERVAS
+    # -------- RESERVAS --------
     tk.Label(ventana, text="Cliente").pack()
     combo_clientes = ttk.Combobox(ventana)
     combo_clientes.pack()
 
     tk.Label(ventana, text="Servicio").pack()
-    combo_servicios = ttk.Combobox(ventana, values=list(servicios_disponibles.keys()))
+    combo_servicios = ttk.Combobox(
+        ventana,
+        values=list(servicios_disponibles.keys())
+    )
     combo_servicios.pack()
 
     tk.Label(ventana, text="Horas").pack()
     entry_horas = tk.Entry(ventana)
     entry_horas.pack()
 
-    # NUEVO CAMPO FECHA
     tk.Label(ventana, text="Fecha (DD/MM/AAAA)").pack()
     entry_fecha = tk.Entry(ventana)
     entry_fecha.pack()
@@ -229,19 +235,27 @@ def iniciar_app():
     tk.Button(ventana, text="Confirmar Reserva", command=confirmar_reserva).pack(pady=5)
     tk.Button(ventana, text="Cancelar Reserva", command=cancelar_reserva).pack(pady=5)
 
-    # TABLA
+    # -------- TABLA --------
     tabla = ttk.Treeview(
         ventana,
-        columns=("ID", "Cliente", "Servicio", "Horas", "Fecha", "Estado", "Costo"), # se añade ID cliente visual
+        columns=("ID", "Cliente", "Servicio", "Horas", "Fecha", "Estado", "Costo"),
         show="headings"
     )
 
     for col in ("ID", "Cliente", "Servicio", "Horas", "Fecha", "Estado", "Costo"):
-        tabla.heading(col, text=col)
-        tabla.column(col, width=100)
+        tabla.heading(col, text=col, anchor="center")
+        tabla.column(col, width=100, anchor="center")
 
-    tabla.tag_configure("green", foreground="green")
-    tabla.tag_configure("red", foreground="red")
+    # Ajustes visuales
+    tabla.column("Cliente", width=160)
+    tabla.column("Servicio", width=140)
+    tabla.column("Fecha", width=110)
+    tabla.column("Costo", width=110)
+
+    # Colores
+    tabla.tag_configure("confirmada", foreground="green")
+    tabla.tag_configure("cancelada", foreground="red")
+    tabla.tag_configure("pendiente", foreground="orange")
 
     tabla.pack(pady=10)
 
